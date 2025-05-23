@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Untitled</title>
+  <link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiáriaControl Pro | Sistema Completo</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">DC</div>
+                <div class="logo-text">
+                    <h1>DiáriaControl Pro</h1>
+                    <p>Sistema avançado de controle de diárias</p>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button id="btnPrint" class="btn btn-success">Imprimir Holerite</button>
+            </div>
+        </header>
+
+        <div class="tabs-container">
+            <div class="tabs">
+                <div class="tab active" data-tab="dashboard">Dashboard</div>
+                <div class="tab" data-tab="funcionarios">Funcionários</div>
+                <div class="tab" data-tab="diarias">Diárias</div>
+                <div class="tab" data-tab="despesas">Despesas</div>
+                <div class="tab" data-tab="relatorios">Relatórios</div>
+            </div>
+        </div>
+
+        <div id="dashboard" class="tab-content active">
+            <div id="alertDashboardSuccess" class="alert alert-success"></div>
+            <div id="alertDashboardError" class="alert alert-danger"></div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Resumo do Mês</h2>
+                    <div class="calendar-nav">
+                        <button id="prevMonth" class="btn btn-sm btn-primary">←</button>
+                        <span id="currentMonth" style="padding: 0 15px; font-weight: 500;"></span>
+                        <button id="nextMonth" class="btn btn-sm btn-primary">→</button>
+                    </div>
+                </div>
+                
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <h3>Dias Trabalhados</h3>
+                        <p id="daysWorked">0</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Total Diárias</h3>
+                        <p id="totalDiarias">R$ 0,00</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Total Despesas</h3>
+                        <p id="totalDespesas">R$ 0,00</p>
+                    </div>
+                    <div class="summary-card total">
+                        <h3>Valor Líquido</h3>
+                        <p id="valorLiquido">R$ 0,00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Calendário</h2>
+                <div class="calendar" id="mainCalendar">
+                    </div>
+                <div style="margin-top: 20px; text-align: center; color: var(--gray);">
+                    <p>Clique em um dia para marcar/desmarcar como trabalhado e editar diária.</p>
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 15px;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 16px; height: 16px; background-color: var(--worked-day); margin-right: 8px; border-radius: 3px;"></div>
+                            <span>Dia trabalhado</span>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 16px; height: 16px; border: 2px solid var(--current-day); margin-right: 8px; border-radius: 3px;"></div>
+                            <span>Dia atual</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="funcionarios" class="tab-content">
+            <div id="alertFuncionariosSuccess" class="alert alert-success"></div>
+            <div id="alertFuncionariosError" class="alert alert-danger"></div>
+            
+            <div class="card">
+                <h2 class="card-title">Cadastrar Funcionário</h2>
+                <form id="employeeForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="funcNome">Nome Completo</label>
+                            <input type="text" id="funcNome" class="form-control" required>
+                            <span class="invalid-feedback" id="feedbackFuncNome"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="funcCpf">CPF</label>
+                            <input type="text" id="funcCpf" class="form-control" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" placeholder="Ex: 123.456.789-00" required>
+                            <span class="invalid-feedback" id="feedbackFuncCpf"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="funcCargo">Cargo</label>
+                            <input type="text" id="funcCargo" class="form-control" required>
+                            <span class="invalid-feedback" id="feedbackFuncCargo"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="funcDiaria">Valor da Diária Padrão</label>
+                            <input type="number" step="0.01" id="funcDiaria" class="form-control" required>
+                            <span class="invalid-feedback" id="feedbackFuncDiaria"></span>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Cadastrar Funcionário</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Funcionários Cadastrados</h2>
+                <div class="table-responsive">
+                    <table class="table" id="funcionariosTable">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>CPF</th>
+                                <th>Cargo</th>
+                                <th>Diária Padrão</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="diarias" class="tab-content">
+            <div id="alertDiariasSuccess" class="alert alert-success"></div>
+            <div id="alertDiariasError" class="alert alert-danger"></div>
+            
+            <div class="card">
+                <h2 class="card-title">Histórico de Diárias</h2>
+                <div class="table-responsive">
+                    <table class="table" id="diariasTable">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Funcionário</th>
+                                <th>Valor</th>
+                                <th>Descrição</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="despesas" class="tab-content">
+            <div id="alertDespesasSuccess" class="alert alert-success"></div>
+            <div id="alertDespesasError" class="alert alert-danger"></div>
+            
+            <div class="card">
+                <h2 class="card-title">Registrar Despesa</h2>
+                <form id="expenseForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="despesaFuncionario">Funcionário</label>
+                            <select id="despesaFuncionario" class="form-control" required>
+                                <option value="">Selecione um funcionário...</option>
+                            </select>
+                            <span class="invalid-feedback" id="feedbackDespesaFuncionario"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="despesaDesc">Descrição</label>
+                            <input type="text" id="despesaDesc" class="form-control" required>
+                            <span class="invalid-feedback" id="feedbackDespesaDesc"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="despesaValor">Valor</label>
+                            <input type="number" step="0.01" id="despesaValor" class="form-control" required>
+                            <span class="invalid-feedback" id="feedbackDespesaValor"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="despesaData">Data</label>
+                            <input type="date" id="despesaData" class="form-control" required>
+                            <span class="invalid-feedback" id="feedbackDespesaData"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="despesaCategoria">Categoria</label>
+                            <select id="despesaCategoria" class="form-control" required>
+                                <option value="">Selecione...</option>
+                                <option>Alimentação</option>
+                                <option>Transporte</option>
+                                <option>Hospedagem</option>
+                                <option>Outros</option>
+                            </select>
+                            <span class="invalid-feedback" id="feedbackDespesaCategoria"></span>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Registrar Despesa</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Histórico de Despesas</h2>
+                <div class="table-responsive">
+                    <table class="table" id="despesasTable">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Funcionário</th>
+                                <th>Descrição</th>
+                                <th>Categoria</th>
+                                <th>Valor</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="relatorios" class="tab-content">
+            <div class="card">
+                <h2 class="card-title">Gerar Relatório</h2>
+                <form id="reportForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="reportPeriodo">Período</label>
+                            <select id="reportPeriodo" class="form-control">
+                                <option value="this_month">Este mês</option>
+                                <option value="last_month">Mês anterior</option>
+                                <option value="quarter">Trimestre</option>
+                                <option value="semester">Semestre</option>
+                                <option value="year">Ano</option>
+                                <option value="custom">Personalizado</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="reportStartGroup" style="display: none;">
+                            <label class="form-label" for="reportStart">De</label>
+                            <input type="date" id="reportStart" class="form-control">
+                            <span class="invalid-feedback" id="feedbackReportStart"></span>
+                        </div>
+                        <div class="form-group" id="reportEndGroup" style="display: none;">
+                            <label class="form-label" for="reportEnd">Até</label>
+                            <input type="date" id="reportEnd" class="form-control">
+                            <span class="invalid-feedback" id="feedbackReportEnd"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="reportFuncionario">Funcionário</label>
+                            <select id="reportFuncionario" class="form-control">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Gerar Relatório</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Resultados</h2>
+                <div class="table-responsive">
+                    <table class="table" id="reportTable">
+                        <thead>
+                            <tr>
+                                <th>Funcionário</th>
+                                <th>Dias</th>
+                                <th>Diárias</th>
+                                <th>Despesas</th>
+                                <th>Líquido</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="reportChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="holeriteContent" style="display: none;">
+            <div class="holerite">
+                <div class="holerite-header">
+                    <h2 class="holerite-title">Recibo de Pagamento</h2>
+                    <div class="holerite-periodo" id="holeritePeriodo"></div>
+                </div>
+                
+                <div class="holerite-info">
+                    <div>
+                        <h3>Funcionário</h3>
+                        <p id="holeriteFuncionario"></p>
+                        <p id="holeriteCargo"></p>
+                        <p id="holeriteCpf"></p>
+                    </div>
+                    <div>
+                        <h3>Informações</h3>
+                        <p id="holeriteDataEmissao"></p>
+                        <p>Valor da Diária Padrão: <span id="holeriteValorDiaria"></span></p>
+                    </div>
+                </div>
+                
+                <div class="holerite-details">
+                    <h3>Detalhamento de Diárias e Despesas</h3>
+                    <table class="holerite-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Descrição</th>
+                                <th>Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody id="holeriteDetalhes">
+                            </tbody>
+                    </table>
+                </div>
+                
+                <div class="holerite-total">
+                    Total Líquido: <span id="holeriteTotal"></span>
+                </div>
+                
+                <div class="holerite-footer">
+                    <p>Este documento serve como comprovante de pagamento</p>
+                    <p>DiáriaControl Pro - Sistema de Gestão de Diárias</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="diariaModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h2 id="modalTitle">Registrar Diária</h2>
+                <form id="diariaFormModal">
+                    <div class="form-group">
+                        <label class="form-label" for="modalDiariaFuncionario">Funcionário</label>
+                        <select id="modalDiariaFuncionario" class="form-control" required>
+                            <option value="">Selecione um funcionário...</option>
+                        </select>
+                        <span class="invalid-feedback" id="feedbackModalDiariaFuncionario"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="modalDiariaData">Data</label>
+                        <input type="date" id="modalDiariaData" class="form-control" required readonly>
+                        <span class="invalid-feedback" id="feedbackModalDiariaData"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="modalDiariaValor">Valor da Diária (para este dia)</label>
+                        <input type="number" step="0.01" id="modalDiariaValor" class="form-control" required>
+                        <span class="invalid-feedback" id="feedbackModalDiariaValor"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="modalDiariaDescricao">Descrição (opcional)</label>
+                        <input type="text" id="modalDiariaDescricao" class="form-control">
+                        <span class="invalid-feedback" id="feedbackModalDiariaDescricao"></span>
+                    </div>
+                    <div class="btn-group" style="justify-content: flex-end;">
+                        <button type="button" id="deleteDiariaModal" class="btn btn-danger" style="display:none;">Excluir</button>
+                        <button type="submit" class="btn btn-primary">Salvar Diária</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="./script.js"></script>
+</body>
+</html>
+<!-- partial -->
+  <script  src="./script.js"></script>
+
+</body>
+</html>
